@@ -1,0 +1,10 @@
+{
+    "files.associations": {
+        "emu.h": "c",
+        "sdl_ttf.h": "c",
+        "sdl.h": "c",
+        "check.h": "c",
+        "stdlib.h": "c",
+        "ui.h": "c"
+    }
+}
