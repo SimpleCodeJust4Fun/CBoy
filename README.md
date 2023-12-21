@@ -38,7 +38,7 @@ cd gbemu
 - add `include_directories("/opt/homebrew/include")` in CMakeLists.txt
   
 **explaination**:
-- the dependencies sdl2, sdl2_ttf and check are installed with homebrew, the original repo was desined to run on Linux and Windows therefore did not add homebrew include path in CMakeLists.txt
+- the dependencies `sdl2`, `sdl2_ttf` and `check` and check are installed with homebrew, the original repo was desined to run on Linux and Windows therefore did not add homebrew include path in CMakeLists.txt
 # Appendix
 
 Important References:

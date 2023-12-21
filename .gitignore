@@ -1,0 +1,5 @@
+build/
+docs/
+.history/
+.vscode/
+.DS_STORE
