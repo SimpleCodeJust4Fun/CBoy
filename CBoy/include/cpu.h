@@ -29,11 +29,22 @@ typedef struct {
     // two status of CPU
     bool halted; // In x86 architecture, HLT (halt) is an assembly instruction which 
                  // halts the CPU until the next external interrupt is fired.
-    
     bool stepping;
+
+    // for DI inst, when interrupt is disabled
+    bool int_master_enabled;
 } cpu_context;
 
 void cpu_init();
 bool cpu_step();
 
 u16 cpu_read_reg(reg_type rt);
+
+typedef void (*IN_PROC)(cpu_context *);
+ 
+// get the function processor by the instruction type
+IN_PROC insr_get_processor(in_type type);
+
+// refer to pandocs CPU flags
+#define CPU_FLAG_Z BIT(ctx->regs.f, 7) 
+#define CPU_FLAG_C BIT(ctx->regs.f, 4) 
