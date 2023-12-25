@@ -32,38 +32,36 @@ static void proc_nop(cpu_context *ctx) {
 }
 
 static void proc_ld(cpu_context *ctx) {
-    
     // special case 1 for memory destination
     if (ctx->dest_is_mem) {
-        // LD(BC), A for instance
+        //LD (BC), A for instance...
         if (ctx->cur_inst->reg_2 >= RT_AF) {
-            // if 16 bit register
+            //if 16 bit register...
             emu_cycles(1);
             bus_write16(ctx->mem_dest, ctx->fetched_data);
         } else {
             bus_write(ctx->mem_dest, ctx->fetched_data);
         }
-
+        emu_cycles(1);
+        
         return;
     }
-
+    
     // special case 2 for F8, set h and c flag
     if (ctx->cur_inst->mode == AM_HL_SPR) {
-        u8 hflag = (cpu_read_reg(ctx->cur_inst->reg_2) & 0xF) +
+        u8 hflag = (cpu_read_reg(ctx->cur_inst->reg_2) & 0xF) + 
             (ctx->fetched_data & 0xF) >= 0x10;
-        
-        u8 cflag = (cpu_read_reg(ctx->cur_inst->reg_2) & 0xF) +
+
+        u8 cflag = (cpu_read_reg(ctx->cur_inst->reg_2) & 0xFF) + 
             (ctx->fetched_data & 0xFF) >= 0x100;
 
         cpu_set_flags(ctx, 0, 0, hflag, cflag);
-        cpu_set_reg(ctx->cur_inst->reg_1,
+        cpu_set_reg(ctx->cur_inst->reg_1, 
             cpu_read_reg(ctx->cur_inst->reg_2) + (char)ctx->fetched_data);
 
         return;
     }
-
     cpu_set_reg(ctx->cur_inst->reg_1, ctx->fetched_data);
-
 }
 
 static void proc_ldh(cpu_context *ctx) {
