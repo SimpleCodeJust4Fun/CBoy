@@ -48,3 +48,5 @@ IN_PROC insr_get_processor(in_type type);
 // refer to pandocs CPU flags
 #define CPU_FLAG_Z BIT(ctx->regs.f, 7) 
 #define CPU_FLAG_C BIT(ctx->regs.f, 4) 
+
+void cpu_set_reg(reg_type rt, u16 val);
