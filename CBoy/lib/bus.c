@@ -18,7 +18,6 @@
 // 0xFF80	0xFFFE	High RAM (HRAM)	
 // 0xFFFF	0xFFFF	Interrupt Enable register (IE)	
 
-
 u8 bus_read(u16 address) {
      if (address < 0x8000) {
         //ROM Data

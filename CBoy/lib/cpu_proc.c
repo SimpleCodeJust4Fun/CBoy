@@ -1,6 +1,7 @@
 #include <cpu.h>
 #include <emu.h>
 #include <bus.h>
+#include <stack.h>
 
 // process CPU instructions
 
@@ -97,12 +98,86 @@ static bool check_cond(cpu_context *ctx) {
     return false;
 }
 
-static void proc_jp (cpu_context *ctx) {
-    // TODO
+// for general jump-type instructions
+static void goto_addr(cpu_context *ctx, u16 addr, bool pushpc) {
     if (check_cond(ctx)) {
-        ctx->regs.pc = ctx->fetched_data;
+        if (pushpc) {
+            emu_cycles(2); // 16 bit addr for 2 cycle
+            stack_push16(ctx->regs.pc);
+        }
+        ctx->regs.pc = addr;
         emu_cycles(1);
     }
+}
+
+static void proc_jp(cpu_context *ctx) {
+    goto_addr(ctx, ctx->fetched_data, false); // jp inst need no pc push
+}
+
+static void proc_jr(cpu_context *ctx) {
+    char rel = (char)(ctx->fetched_data & 0xFF); //relative value for jumping, (char) for both + and - jump
+    u16 addr = ctx->regs.pc + rel;
+    goto_addr(ctx, addr, false); // jp inst need no pc push
+}
+
+static void proc_call(cpu_context *ctx) {
+    goto_addr(ctx, ctx->fetched_data, true); // jp inst need no pc push
+}
+
+static void proc_rst(cpu_context *ctx) {
+    goto_addr(ctx, ctx->cur_inst->param, true); // jp inst need no pc push
+}
+
+static void proc_ret (cpu_context *ctx) {
+    if (ctx->cur_inst->cond != CT_NONE) {
+        emu_cycles(1);
+    }
+
+    if (check_cond(ctx)) {
+        u16 low = stack_pop();
+        emu_cycles(1);
+        u16 high = stack_pop();
+        emu_cycles(1);
+
+        u16 n = (high << 8) | low;
+        ctx->regs.pc = n;
+
+        emu_cycles(1);
+    }
+}
+
+// return from interrupt
+static void proc_reti(cpu_context *ctx) {
+    ctx->int_master_enabled = true;
+    proc_ret(ctx);
+}
+
+static void proc_pop(cpu_context *ctx) {
+    u16 low = stack_pop();
+    emu_cycles(1);
+    u16 high = stack_pop();
+    emu_cycles(1);
+
+    u16 n = (high << 8) | low;
+
+    cpu_set_reg(ctx->cur_inst->reg_1, n);
+
+    // special for AF
+    if (ctx->cur_inst->reg_1 == RT_AF) {
+        cpu_set_reg(ctx->cur_inst->reg_1, n & 0xFFF0);
+    }
+}
+
+static void proc_push(cpu_context *ctx) {
+    u16 high = (cpu_read_reg(ctx->cur_inst->reg_1) >> 8) & 0xFF;
+    emu_cycles(1);
+    stack_push(high);
+
+    u16 low = cpu_read_reg(ctx->cur_inst->reg_2) & 0xFF;
+    emu_cycles(1);
+    stack_push(low);
+
+    emu_cycles(1);
 }
 
 static void proc_di(cpu_context *ctx) {
@@ -118,9 +193,17 @@ static IN_PROC processors[] = {
     [IN_LDH] = proc_ldh,
     [IN_JP] = proc_jp,
     [IN_DI] = proc_di,
+    [IN_PUSH] = proc_push,
+    [IN_POP] = proc_pop,
+    [IN_JR] = proc_jr,
+    [IN_CALL] = proc_call,
+    [IN_RET] = proc_ret,
+    [IN_RST] = proc_rst,
+    [IN_RETI] = proc_reti,
     [IN_XOR] = proc_xor
+
 };
 
-IN_PROC insr_get_processor(in_type type) {
+IN_PROC inst_get_processor(in_type type) {
     return processors[type];
 }

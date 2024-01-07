@@ -21,7 +21,7 @@ void fetch_data();
 
 // execute the instruction
 static void execute() {
-    IN_PROC proc = insr_get_processor(ctx.cur_inst->type);
+    IN_PROC proc = inst_get_processor(ctx.cur_inst->type);
 
     if (!proc) {
         NO_IMPL
