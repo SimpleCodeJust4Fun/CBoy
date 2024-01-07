@@ -1,7 +1,7 @@
 #pragma once
 
 #include <common.h>
-#include<instructions.h>
+#include <instructions.h>
 
 typedef struct {
     u8 a;
@@ -36,13 +36,15 @@ typedef struct {
     u8 ie_register;
 } cpu_context;
 
+cpu_registers *cpu_get_regs();
+
 void cpu_init();
 bool cpu_step();
 
 typedef void (*IN_PROC)(cpu_context *);
  
 // get the function processor by the instruction type
-IN_PROC insr_get_processor(in_type type);
+IN_PROC inst_get_processor(in_type type);
 
 // refer to pandocs CPU flags
 #define CPU_FLAG_Z BIT(ctx->regs.f, 7) 
