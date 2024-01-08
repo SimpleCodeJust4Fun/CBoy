@@ -32,6 +32,164 @@ static void proc_nop(cpu_context *ctx) {
 
 }
 
+reg_type rt_lookup[] = {
+    RT_B,
+    RT_C,
+    RT_D,
+    RT_E,
+    RT_H,
+    RT_L,
+    RT_HL,
+    RT_A,
+};
+
+
+reg_type decode_reg(u8 reg) {
+    if (reg > 0b111) {
+        return RT_NONE;
+    }
+
+    return rt_lookup[reg];
+}
+
+static void proc_and(cpu_context *ctx) {
+    ctx->regs.a &= ctx->fetched_data;
+    cpu_set_flags(ctx, ctx->regs.a == 0, 0, 1, 0);
+}
+
+static void proc_xor(cpu_context *ctx) {
+    ctx->regs.a ^= ctx->fetched_data;
+    cpu_set_flags(ctx, ctx->regs.a == 0, 0, 0, 0);
+}
+
+static void proc_or(cpu_context *ctx) {
+    ctx->regs.a |= ctx->fetched_data;
+    cpu_set_flags(ctx, ctx->regs.a == 0, 0, 0, 0);
+}
+
+static void proc_cp(cpu_context *ctx) {
+    int n = (int)ctx->regs.a - (int)ctx->fetched_data;
+
+    cpu_set_flags(ctx, n == 0, 1,
+        ((int)ctx->regs.a & 0x0F) - ((int)ctx->fetched_data & 0x0F) < 0, n < 0);
+}
+
+// for prefix cb insts
+static void proc_cb(cpu_context *ctx) {
+    u8 op = ctx->fetched_data;
+    reg_type reg = decode_reg(op & 0b111); // low 3 bits for bit operation register (eg. D in `RES 2,D`)
+
+    u8 bit = (op >> 3) & 0b111; // middle 3 bits for bit operation number (eg. 2 in `RES 2,D`)
+    u8 bit_op = (op >> 6) & 0b11; // top 2 bits indicates INST (eg. RES in `RES 2,D`)
+    u8 reg_val = cpu_read_reg8(reg);
+
+    emu_cycles(1);
+    
+    if (reg == RT_HL) {
+        emu_cycles(2);
+    }
+
+    switch(bit_op) {
+        case 1:
+            // BIT (whether the bit is set on that register, if bit set, we set zero flag)
+            cpu_set_flags(ctx, !(reg_val & (1 << bit)), 0, 1, -1);
+            return;
+        case 2:
+            // RES (reset)
+            reg_val &= ~(1 << bit);
+            cpu_set_reg8(reg, reg_val);
+            return;
+        case 3:
+            // SET
+            reg_val |= ~(1 << bit);
+            cpu_set_reg8(reg, reg_val);
+            return;
+    }
+
+    bool flagC = CPU_FLAG_C;
+
+    switch(bit) {
+        case 0: {
+            //RLC
+            bool setC = false;
+            u8 result = (reg_val << 1) & 0xFF;
+
+            if ((reg_val & (1 << 7)) != 0) {
+                result |= 1;
+                setC = true;
+            }
+
+            cpu_set_reg8(reg, result);
+            cpu_set_flags(ctx, result == 0, false, false, setC);
+        } return;
+
+        case 1: {
+            //RRC
+            u8 old = reg_val;
+            reg_val >>= 1;
+            reg_val |= (old << 7);
+
+            cpu_set_reg8(reg, reg_val);
+            cpu_set_flags(ctx, !reg_val, false, false, old & 1);
+        } return;
+
+        case 2: {
+            //RL
+            u8 old = reg_val;
+            reg_val <<= 1;
+            reg_val |= flagC;
+
+            cpu_set_reg8(reg, reg_val);
+            cpu_set_flags(ctx, !reg_val, false, false, !!(old & 0x80));
+        } return;
+
+        case 3: {
+            //RR
+            u8 old = reg_val;
+            reg_val >>= 1;
+
+            reg_val |= (flagC << 7);
+
+            cpu_set_reg8(reg, reg_val);
+            cpu_set_flags(ctx, !reg_val, false, false, old & 1);
+        } return;
+
+        case 4: {
+            //SLA
+            u8 old = reg_val;
+            reg_val <<= 1;
+
+            cpu_set_reg8(reg, reg_val);
+            cpu_set_flags(ctx, !reg_val, false, false, !!(old & 0x80));
+        } return;
+
+        case 5: {
+            //SRA
+            u8 u = (int8_t)reg_val >> 1;
+            cpu_set_reg8(reg, u);
+            cpu_set_flags(ctx, !u, 0, 0, reg_val & 1);
+        } return;
+
+        case 6: {
+            //SWAP
+            reg_val = ((reg_val & 0xF0) >> 4) | ((reg_val & 0xF) << 4);
+            cpu_set_reg8(reg, reg_val);
+            cpu_set_flags(ctx, reg_val == 0, false, false, false);
+        } return;
+
+        case 7: {
+            //SRL
+            u8 u = reg_val >> 1;
+            cpu_set_reg8(reg, u);
+            cpu_set_flags(ctx, !u, 0, 0, reg_val & 1);
+        } return;
+
+        fprintf(stderr, "ERROR: INVALID CB: %02X", op);
+        NO_IMPL
+    }
+
+}
+
 static void proc_di(cpu_context *ctx) {
     // DI inst will disable interrupt
     ctx->int_master_enabled = false;
@@ -82,14 +240,6 @@ static void proc_ldh(cpu_context *ctx) {
     }
 
     emu_cycles(1);
-}
-
-static void proc_xor(cpu_context *ctx) {
-    // TODO
-    ctx->regs.a ^= ctx->fetched_data & 0xFF;
-
-    // according to reference html for xor inst
-    cpu_set_flags(ctx, ctx->regs.a, 0, 0, 0);
 }
 
 static bool check_cond(cpu_context *ctx) {
@@ -331,6 +481,10 @@ static IN_PROC processors[] = {
     [IN_ADC] = proc_adc,
     [IN_SUB] = proc_sub,
     [IN_SBC] = proc_sbc,
+    [IN_AND] = proc_and,
+    [IN_OR] = proc_or,
+    [IN_CP] = proc_cp,
+    [IN_CB] = proc_cb,
     [IN_XOR] = proc_xor
 
 };
