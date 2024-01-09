@@ -1,4 +1,5 @@
 #include <bus.h>
+#include <cart.h>
 
 // 0x0000 - 0x3FFF : ROM Bank 0
 // 0x4000 - 0x7FFF : ROM Bank 1 - Switchable
