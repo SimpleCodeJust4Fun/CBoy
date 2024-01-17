@@ -1,13 +1,15 @@
 #include <interrupts.h>
 #include <cpu.h>
 #include <stack.h>
-void int_handle(cpu_context *ctx, u16 address) {
 
+void int_handle(cpu_context *ctx, u16 address) {
+    stack_push16(ctx->regs.pc);
+    ctx->regs.pc = address;
 }
 
 bool int_check(cpu_context *ctx, u16 address, interrupt_type it) {
     if (ctx->int_flags & it && ctx->ie_register & it) {
-        int_handle(ctx, 0x40);
+        int_handle(ctx, address);
         ctx->int_flags &= ~it;
         ctx->halted = false;
         ctx->int_master_enabled = false;

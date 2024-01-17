@@ -52,109 +52,10 @@ reg_type decode_reg(u8 reg) {
     return rt_lookup[reg];
 }
 
-static void proc_rlca(cpu_context *ctx) {
-    u8 u = ctx->regs.a;
-    bool c = (u >> 7) & 1; // whether c should be set
-    u = (u << 1) | c;
-    ctx->regs.a = u;
-
-    cpu_set_flags(ctx, 0, 0, 0, c);
-}
-
-static void proc_rrca(cpu_context *ctx) {
-    u8 b = ctx->regs.a & 1;
-    ctx->regs.a >>= 1;
-    ctx->regs.a |= (b << 7);
-
-    cpu_set_flags(ctx, 0, 0, 0, b);
-}
-
-static void proc_rla(cpu_context *ctx) {
-    u8 u = ctx->regs.a;
-    u8 cf = CPU_FLAG_C;
-    u8 c = (u >> 7) & 1; // whether c should be set
- 
-    ctx->regs.a = (u << 1) | cf;
-    cpu_set_flags(ctx, 0, 0, 0, c);
-}
-
-static void proc_rra(cpu_context *ctx) {
-    u8 carry = CPU_FLAG_C;
-    u8 new_c = ctx->regs.a & 1;
-
-    ctx->regs.a >>= 1;
-    ctx->regs.a |= (carry << 7);
-
-    cpu_set_flags(ctx, 0, 0, 0, new_c);
-}
-
-static void proc_daa(cpu_context *ctx) {
-    u8 u = 0;
-    int cf = 0;
-
-    if (CPU_FLAG_H || (!CPU_FLAG_N && (ctx->regs.a & 0xF) > 9)) {
-        u = 6;
-    }
-
-    if (CPU_FLAG_C || (!CPU_FLAG_N && ctx->regs.a > 0x99)) {
-        u |= 0x60;
-        cf = 1;
-    }
-
-    ctx->regs.a += CPU_FLAG_N ? -u : u;
-
-    cpu_set_flags(ctx, ctx->regs.a == 0, -1, 0, cf);
-}
-
-static void proc_cpl(cpu_context *ctx) {
-    ctx->regs.a = ~ctx->regs.a;
-    cpu_set_flags(ctx, -1, 1, 1, -1);
-}
-
-static void proc_scf(cpu_context *ctx) {
-    cpu_set_flags(ctx, -1, 0, 0, 1);
-}
-
-static void proc_ccf(cpu_context *ctx) {
-    cpu_set_flags(ctx, -1, 0, 0, CPU_FLAG_C ^ 1);
-}
-
-static void proc_halt(cpu_context *ctx) {
-    ctx->halted = true;
-}
-
-static void proc_stop(cpu_context *ctx) {
-    fprintf(stderr, "STOP!\n");
-    NO_IMPL
-}
-
-static void proc_and(cpu_context *ctx) {
-    ctx->regs.a &= ctx->fetched_data;
-    cpu_set_flags(ctx, ctx->regs.a == 0, 0, 1, 0);
-}
-
-static void proc_xor(cpu_context *ctx) {
-    ctx->regs.a ^= ctx->fetched_data;
-    cpu_set_flags(ctx, ctx->regs.a == 0, 0, 0, 0);
-}
-
-static void proc_or(cpu_context *ctx) {
-    ctx->regs.a |= ctx->fetched_data;
-    cpu_set_flags(ctx, ctx->regs.a == 0, 0, 0, 0);
-}
-
-static void proc_cp(cpu_context *ctx) {
-    int n = (int)ctx->regs.a - (int)ctx->fetched_data;
-
-    cpu_set_flags(ctx, n == 0, 1,
-        ((int)ctx->regs.a & 0x0F) - ((int)ctx->fetched_data & 0x0F) < 0, n < 0);
-}
-
 // for prefix cb insts
 static void proc_cb(cpu_context *ctx) {
     u8 op = ctx->fetched_data;
     reg_type reg = decode_reg(op & 0b111); // low 3 bits for bit operation register (eg. D in `RES 2,D`)
-
     u8 bit = (op >> 3) & 0b111; // middle 3 bits for bit operation number (eg. 2 in `RES 2,D`)
     u8 bit_op = (op >> 6) & 0b11; // top 2 bits indicates INST (eg. RES in `RES 2,D`)
     u8 reg_val = cpu_read_reg8(reg);
@@ -170,14 +71,16 @@ static void proc_cb(cpu_context *ctx) {
             // BIT (whether the bit is set on that register, if bit set, we set zero flag)
             cpu_set_flags(ctx, !(reg_val & (1 << bit)), 0, 1, -1);
             return;
+
         case 2:
             // RES (reset)
             reg_val &= ~(1 << bit);
             cpu_set_reg8(reg, reg_val);
             return;
+
         case 3:
             // SET
-            reg_val |= ~(1 << bit);
+            reg_val |= (1 << bit);
             cpu_set_reg8(reg, reg_val);
             return;
     }
@@ -266,8 +169,107 @@ static void proc_cb(cpu_context *ctx) {
 
 }
 
+
+static void proc_rlca(cpu_context *ctx) {
+    u8 u = ctx->regs.a;
+    bool c = (u >> 7) & 1; // whether c should be set
+    u = (u << 1) | c;
+    ctx->regs.a = u;
+
+    cpu_set_flags(ctx, 0, 0, 0, c);
+}
+
+static void proc_rrca(cpu_context *ctx) {
+    u8 b = ctx->regs.a & 1;
+    ctx->regs.a >>= 1;
+    ctx->regs.a |= (b << 7);
+
+    cpu_set_flags(ctx, 0, 0, 0, b);
+}
+
+static void proc_rla(cpu_context *ctx) {
+    u8 u = ctx->regs.a;
+    u8 cf = CPU_FLAG_C;
+    u8 c = (u >> 7) & 1; // whether c should be set
+ 
+    ctx->regs.a = (u << 1) | cf;
+    cpu_set_flags(ctx, 0, 0, 0, c);
+}
+
+static void proc_rra(cpu_context *ctx) {
+    u8 carry = CPU_FLAG_C;
+    u8 new_c = ctx->regs.a & 1;
+
+    ctx->regs.a >>= 1;
+    ctx->regs.a |= (carry << 7);
+
+    cpu_set_flags(ctx, 0, 0, 0, new_c);
+}
+
+static void proc_daa(cpu_context *ctx) {
+    u8 u = 0;
+    int cf = 0;
+
+    if (CPU_FLAG_H || (!CPU_FLAG_N && (ctx->regs.a & 0xF) > 9)) {
+        u = 6;
+    }
+
+    if (CPU_FLAG_C || (!CPU_FLAG_N && ctx->regs.a > 0x99)) {
+        u |= 0x60;
+        cf = 1;
+    }
+
+    ctx->regs.a += CPU_FLAG_N ? -u : u;
+
+    cpu_set_flags(ctx, ctx->regs.a == 0, -1, 0, cf);
+}
+
+static void proc_cpl(cpu_context *ctx) {
+    ctx->regs.a = ~ctx->regs.a;
+    cpu_set_flags(ctx, -1, 1, 1, -1);
+}
+
+static void proc_scf(cpu_context *ctx) {
+    cpu_set_flags(ctx, -1, 0, 0, 1);
+}
+
+static void proc_ccf(cpu_context *ctx) {
+    cpu_set_flags(ctx, -1, 0, 0, CPU_FLAG_C ^ 1);
+}
+
+static void proc_halt(cpu_context *ctx) {
+    ctx->halted = true;
+}
+
+static void proc_stop(cpu_context *ctx) {
+    fprintf(stderr, "STOP!\n");
+    NO_IMPL
+}
+
+static void proc_and(cpu_context *ctx) {
+    ctx->regs.a &= ctx->fetched_data;
+    cpu_set_flags(ctx, ctx->regs.a == 0, 0, 1, 0);
+}
+
+static void proc_xor(cpu_context *ctx) {
+    ctx->regs.a ^= ctx->fetched_data & 0xFF;
+    cpu_set_flags(ctx, ctx->regs.a == 0, 0, 0, 0);
+}
+
+static void proc_or(cpu_context *ctx) {
+    ctx->regs.a |= ctx->fetched_data & 0xFF;
+    cpu_set_flags(ctx, ctx->regs.a == 0, 0, 0, 0);
+}
+
+static void proc_cp(cpu_context *ctx) {
+    int n = (int)ctx->regs.a - (int)ctx->fetched_data;
+
+    cpu_set_flags(ctx, n == 0, 1,
+        ((int)ctx->regs.a & 0x0F) - ((int)ctx->fetched_data & 0x0F) < 0, n < 0);
+}
+
 static void proc_di(cpu_context *ctx) {
-    // DI inst will disable interrupt
+    // disable interrupt
     ctx->int_master_enabled = false;
 }
 
@@ -317,7 +319,8 @@ static void proc_ldh(cpu_context *ctx) {
     if (ctx->cur_inst->reg_1 == RT_A) {
         cpu_set_reg(ctx->cur_inst->reg_1, bus_read(0xFF00 | ctx->fetched_data));
     } else {
-        bus_write(0xFF00 | ctx->fetched_data, ctx->regs.a);
+        //bus_write(0xFF00 | ctx->fetched_data, ctx->regs.a);
+        bus_write(ctx->mem_dest, ctx->regs.a);
     }
 
     emu_cycles(1);
@@ -413,7 +416,7 @@ static void proc_push(cpu_context *ctx) {
     emu_cycles(1);
     stack_push(high);
 
-    u16 low = cpu_read_reg(ctx->cur_inst->reg_2) & 0xFF;
+    u16 low = cpu_read_reg(ctx->cur_inst->reg_1) & 0xFF;
     emu_cycles(1);
     stack_push(low);
 
@@ -453,7 +456,6 @@ static void proc_dec(cpu_context *ctx) {
 
     if (ctx->cur_inst->reg_1 == RT_HL && ctx->cur_inst->mode == AM_MR) {
         val = bus_read(cpu_read_reg(RT_HL)) - 1;
-        val &= 0xFF; // in case of overflow
         bus_write(cpu_read_reg(RT_HL), val);
     } else {
         cpu_set_reg(ctx->cur_inst->reg_1, val);
@@ -584,3 +586,7 @@ static IN_PROC processors[] = {
 IN_PROC inst_get_processor(in_type type) {
     return processors[type];
 }
+
+// DBG: 07-jr,jp,call,ret,rst
+// DBG: 03-op sp,hl
+// DBG: 08-misc instrs
