@@ -586,7 +586,3 @@ static IN_PROC processors[] = {
 IN_PROC inst_get_processor(in_type type) {
     return processors[type];
 }
-
-// DBG: 07-jr,jp,call,ret,rst
-// DBG: 03-op sp,hl
-// DBG: 08-misc instrs

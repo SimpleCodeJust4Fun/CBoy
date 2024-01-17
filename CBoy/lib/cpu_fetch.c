@@ -65,8 +65,8 @@ void fetch_data() {
         case AM_R_MR: {
             u16 addr = cpu_read_reg(ctx.cur_inst->reg_2);
 
-            if (ctx.cur_inst->reg_1 == RT_C) {
-                ctx.mem_dest |= 0xFF00; 
+            if (ctx.cur_inst->reg_2 == RT_C) {
+                addr |= 0xFF00;
             }
 
             ctx.fetched_data = bus_read(addr);
@@ -106,10 +106,11 @@ void fetch_data() {
             emu_cycles(1);
             ctx.regs.pc++;
             return;
+
         case AM_A8_R:
             ctx.mem_dest = bus_read(ctx.regs.pc) | 0xFF00;
-            emu_cycles(1);
             ctx.dest_is_mem = true;
+            emu_cycles(1);
             ctx.regs.pc++;
             return;
         
