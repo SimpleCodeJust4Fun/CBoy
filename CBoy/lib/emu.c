@@ -3,7 +3,7 @@
 #include <cart.h>
 #include <cpu.h>
 #include <ui.h>
-
+#include <timer.h>
 //TODO add windows thread
 #include <pthread.h>
 #include <unistd.h>
@@ -27,7 +27,9 @@ emu_context *emu_get_context() {
 
 
 void *cpu_run(void *p) {
+    timer_init();
     cpu_init();
+
     ctx.running = true;
     ctx.paused = false;
     ctx.ticks = 0;
@@ -40,10 +42,8 @@ void *cpu_run(void *p) {
 
         if (!cpu_step()) {
             printf("CPU Stopped\n");
-            return -3;
+            return 0;
         }
-
-        ctx.ticks++;
     }
 
     return 0;
@@ -67,7 +67,7 @@ int emu_run(int argc, char **argv) {
     pthread_t t1;
 
     if (pthread_create(&t1, NULL, cpu_run, NULL)) {
-        printf(stderr, "Failed to create thread (Failed to start main CPU thread)\n");
+        fprintf(stderr, "Failed to create thread (Failed to start main CPU thread)\n");
         return -1;
     }
 
@@ -81,4 +81,10 @@ int emu_run(int argc, char **argv) {
 
 void emu_cycles(int cpu_cycles) {
     //TODO
+    int n = cpu_cycles * 4;
+
+    for (int i = 0; i < n; i++) {
+        ctx.ticks++;
+        timer_tick();
+    }
 }
