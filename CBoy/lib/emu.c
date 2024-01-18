@@ -24,8 +24,6 @@ emu_context *emu_get_context() {
     return &ctx;
 }
 
-
-
 void *cpu_run(void *p) {
     timer_init();
     cpu_init();
