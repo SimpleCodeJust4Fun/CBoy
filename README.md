@@ -5,7 +5,7 @@ Deploy Env
 - Compiler: Apple clang version 15.0.0 (clang-1500.1.0.2.5) from Apple's default CommandLineTools
 - Other requirements: Homebrew 4.2.0
   
-setup:
+Setup:
 1. clone the repo to your local directory 
 ```bash
 git clone https://github.com/SimpleCodeJust4Fun/cBoy.git
