@@ -1,6 +1,7 @@
 #include <cpu.h>
 #include <instructions.h>
 #include <bus.h>
+
 // an array for all the instruction types, size 0x100
 // refer to https://www.pastraiser.com/cpu/gameboy/gameboy_opcodes.html for actual instruction set
 instruction instructions[0x100] = {
