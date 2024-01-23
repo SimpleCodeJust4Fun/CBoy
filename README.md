@@ -5,12 +5,11 @@ Deploy Env
 - Compiler: Apple clang version 15.0.0 (clang-1500.1.0.2.5) from Apple's default CommandLineTools
 - Other requirements: Homebrew 4.2.0
   
-setup:
+Setup:
 1. clone the repo to your local directory 
 ```bash
 git clone https://github.com/SimpleCodeJust4Fun/cBoy.git
-cd LLD_GEBEMU
-cd part16
+cd CBoy
 ```
 2. use cmake to construct the project
 ```bash
@@ -69,5 +68,3 @@ Windows Environment Setup:
 5. pacman -S mingw-w64-x86_64-check
 
 After above steps you should be able to build from Windows using MSYS2 just like in the videos.
-
-
