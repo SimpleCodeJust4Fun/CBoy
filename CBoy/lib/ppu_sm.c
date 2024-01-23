@@ -53,7 +53,7 @@ void load_line_sprites() {
 
             // add the cur entry to linked list 
             if (!ppu_get_context()->line_sprites ||
-                ppu_get_context()->line_sprites->entry.x > e.x) {
+                    ppu_get_context()->line_sprites->entry.x > e.x) {
                 //make sure entry with less x is in front position
                 entry->next = ppu_get_context()->line_sprites;
                 ppu_get_context()->line_sprites = entry;
@@ -83,7 +83,6 @@ void load_line_sprites() {
                 prev = le;
                 le = le->next;
             }
-
         }
     }
 }

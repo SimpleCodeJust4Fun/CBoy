@@ -64,7 +64,7 @@ u32 fetch_sprite_pixels(int bit, u32 color, u8 bg_color) {
     
         bool bg_priority = ppu_get_context()->fetched_entries[i].f_bg_priority;
 
-        if (!high|low) {
+        if (!(high|low)) {
             //transparent color
             continue;
         }
@@ -123,18 +123,17 @@ void pipeline_load_sprite_tile() {
         int sp_x = (le->entry.x - 8) + (lcd_get_context()->scroll_x % 8);
 
         //bound check
-        if ((sp_x >= ppu_get_context()->pfc.fetch_x && sp_x < ppu_get_context()->pfc.fetch_x + 8) 
-            || 
+        if ((sp_x >= ppu_get_context()->pfc.fetch_x && sp_x < ppu_get_context()->pfc.fetch_x + 8) ||
             ((sp_x + 8) >= ppu_get_context()->pfc.fetch_x && (sp_x + 8) < ppu_get_context()->pfc.fetch_x + 8)) {
             //need to add entry
             ppu_get_context()->fetched_entries[ppu_get_context()->fetched_entry_count++] = le->entry;
+        }
 
-            le = le->next;
+        le = le->next;
 
-            if (!le || ppu_get_context()->fetched_entry_count >= 3) {
-                //max 3 sprites per 8-pixel section
-                break;
-            }
+        if (!le || ppu_get_context()->fetched_entry_count >= 3) {
+            //max 3 sprites per 8-pixel section
+            break;
         }
     }
 }
