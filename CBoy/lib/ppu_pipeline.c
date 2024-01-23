@@ -26,12 +26,12 @@ u32 pixel_fifo_pop() {
         exit(-8);
     }
 
-    fifo_entry *poped = ppu_get_context()->pfc.pixel_fifo.head;
-    ppu_get_context()->pfc.pixel_fifo.head = poped->next;
+    fifo_entry *popped = ppu_get_context()->pfc.pixel_fifo.head;
+    ppu_get_context()->pfc.pixel_fifo.head = popped->next;
     ppu_get_context()->pfc.pixel_fifo.size--;
 
-    u32 val = poped->value;
-    free(poped);
+    u32 val = popped->value;
+    free(popped);
 
     return val;
 }
@@ -78,6 +78,7 @@ void pipeline_fetch() {
             ppu_get_context()->pfc.cur_fetch_state = FS_DATA0;
             ppu_get_context()->pfc.fetch_x += 8;
         } break;
+
         case FS_DATA0: {
             ppu_get_context()->pfc.bgw_fetch_data[1] = bus_read(LCDC_BGW_DATA_AREA +
                 ppu_get_context()->pfc.bgw_fetch_data[0] * 16 +
@@ -85,6 +86,7 @@ void pipeline_fetch() {
 
                 ppu_get_context()->pfc.cur_fetch_state = FS_DATA1;
         } break;
+
         case FS_DATA1: {
             ppu_get_context()->pfc.bgw_fetch_data[2] = bus_read(LCDC_BGW_DATA_AREA +
                 ppu_get_context()->pfc.bgw_fetch_data[0] * 16 +
@@ -92,17 +94,21 @@ void pipeline_fetch() {
 
                 ppu_get_context()->pfc.cur_fetch_state = FS_IDLE;
         } break;
+
         case FS_IDLE: {
                 ppu_get_context()->pfc.cur_fetch_state = FS_PUSH;
         } break;
+
         case FS_PUSH: {
             if (pipeline_fifo_add()) {
                 //keep pushing until succeed
                 ppu_get_context()->pfc.cur_fetch_state = FS_TILE;
             }
         } break;
+
     }
 }
+
 
 void pipeline_push_pixel() {
     if (ppu_get_context()->pfc.pixel_fifo.size > 8) {
@@ -125,7 +131,7 @@ void pipeline_process() {
     ppu_get_context()->pfc.map_x = ppu_get_context()->pfc.fetch_x + lcd_get_context()->scroll_x;
     ppu_get_context()->pfc.tile_y = ((lcd_get_context()->ly + lcd_get_context()->scroll_y) % 8) * 2; //y-value on cur tile
 
-    if (!ppu_get_context()->line_ticks & 1) {
+    if (!(ppu_get_context()->line_ticks & 1)) {
         //first bit is not set (on a even line instead of odd line)
         pipeline_fetch();
     }
