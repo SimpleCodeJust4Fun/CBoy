@@ -2,6 +2,7 @@
 #include <lcd.h>
 #include <cpu.h>
 #include <interrupts.h>
+#include <string.h>
 
 void increment_ly() {
     lcd_get_context()->ly++;
@@ -17,6 +18,76 @@ void increment_ly() {
     }
 }
 
+void load_line_sprites() {
+    //load all sprites on given line into a linked list
+    int cur_y = lcd_get_context()->ly;
+
+    u8 sprite_height = LCDC_OBJ_HEIGHT;
+    //clear line entry array
+    memset(ppu_get_context()->line_entry_array, 0,
+        sizeof(ppu_get_context()->line_entry_array));
+
+    for (int i = 0; i < 40; i++) {
+        //loop through all 40 sprites in oam
+        oam_entry e = ppu_get_context()->oam_ram[i];
+    
+        if (!e.x) {
+            //if x is 0, then sprite is not visible
+            continue;
+        }
+
+        if (ppu_get_context()->line_sprite_count >= 10) {
+            //if we already have 10 sprites on line, stop
+            break;
+        }
+
+        if (e.y <= cur_y + 16 && e.y + sprite_height > cur_y + 16) {
+            //this sprite is on cur line
+
+            oam_line_entry *entry = &ppu_get_context()->line_entry_array[
+                ppu_get_context()->line_sprite_count++
+            ];
+
+            entry->entry = e;
+            entry->next = NULL;
+
+            // add the cur entry to linked list 
+            if (!ppu_get_context()->line_sprites ||
+                ppu_get_context()->line_sprites->entry.x > e.x) {
+                //make sure entry with less x is in front position
+                entry->next = ppu_get_context()->line_sprites;
+                ppu_get_context()->line_sprites = entry;
+                continue;
+            }
+
+            //find a correct place for cur entry in the linked list
+            //sorted sprites by x position is essential for some game's proper rendering
+
+            oam_line_entry *le = ppu_get_context()->line_sprites;
+            oam_line_entry *prev = le;
+
+            while(le) {
+                if (le->entry.x > e.x) {
+                    //if cur entry has less x than the entry in the list
+                    //insert cur entry between prev and le: (prev, entry, le)
+                    prev->next = entry;
+                    entry->next = le;
+                    break;
+                }
+                
+                if (!le->next) {
+                    le->next = entry;
+                    break;
+                }
+
+                prev = le;
+                le = le->next;
+            }
+
+        }
+    }
+}
+
 void ppu_mode_oam() {
     if (ppu_get_context()->line_ticks >= 80) {
         LCDS_MODE_SET(MODE_XFER);
@@ -26,6 +97,14 @@ void ppu_mode_oam() {
         ppu_get_context()->pfc.fetch_x = 0;
         ppu_get_context()->pfc.pushed_x = 0;
         ppu_get_context()->pfc.fifo_x = 0;
+    }
+
+    if (ppu_get_context()->line_ticks == 1) {
+        //read oam data on the first tick only, diff from real CPU (read oam data on every tick)
+        ppu_get_context()->line_sprites = 0;
+        ppu_get_context()->line_sprite_count = 0;
+
+        load_line_sprites();
     }
 }
 void ppu_mode_xfer() {
