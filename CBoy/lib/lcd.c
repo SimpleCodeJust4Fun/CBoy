@@ -70,11 +70,11 @@ void lcd_write(u16 address, u8 value) {
         // background palette
         update_palette(value, 0);
     } else if (address == 0xFF48) {
-        // obj palette
+        // obj palette 1
         update_palette(value & 0b11111100, 1); // bottom 2 bits are ignored
     } else if (address == 0xFF49) {
-        // obj palette
-        update_palette(value & 0b11111100, 1);
+        // obj palette 2
+        update_palette(value & 0b11111100, 2);
     }
 }
 
