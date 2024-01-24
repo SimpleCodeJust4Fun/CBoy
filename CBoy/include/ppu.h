@@ -77,6 +77,7 @@ typedef struct {
 
     u8 fetched_entry_count;
     oam_entry fetched_entries[3]; //entries fetched during pipeline
+    u8 window_line; //current window line
 
     pixel_fifo_context pfc;
 
@@ -98,3 +99,5 @@ ppu_context *ppu_get_context();
 
 void pipeline_process();
 void pipeline_fifo_reset();
+
+bool window_visible();
