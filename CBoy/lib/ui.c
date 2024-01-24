@@ -175,10 +175,6 @@ void ui_handle_events() {
             ui_on_key(false, e.key.keysym.sym);
         }
 
-        if (e.type == SDL_KEYDOWN) {
-            ui_on_key(true, e.key.keysym.sym);
-        }
-
         if (e.type == SDL_WINDOWEVENT && e.window.event == SDL_WINDOWEVENT_CLOSE) {
             emu_get_context()->die = true;
         }

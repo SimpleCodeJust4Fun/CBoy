@@ -34,24 +34,25 @@ u8 gamepad_get_output() {
             output &= ~(1 << 3); //turning off bit 3 if start is pressed
         } else if (gamepad_get_state()->select) {
             output &= ~(1 << 2); //turning off bit 2 if select is pressed
-        } else if (gamepad_get_state()->b) {
-            output &= ~(1 << 1); //turning off bit 0 if select is pressed
         } else if (gamepad_get_state()->a) {
-            output &= ~(1 << 0); //turning off bit 1 if select is pressed
-        }
-
-        if (!gamepad_dir_sel()) {
-            if (gamepad_get_state()->left) {
-                output &= ~(1 << 1); 
-            } else if (gamepad_get_state()->right) {
-                output &= ~(1 << 0); 
-            } else if (gamepad_get_state()->up) {
-                output &= ~(1 << 2); 
-            } else if (gamepad_get_state()->down) {
-                output &= ~(1 << 3); 
-            }
+            output &= ~(1 << 0); //turning off bit 0 if select is pressed
+        } else if (gamepad_get_state()->b) {
+            output &= ~(1 << 1); //turning off bit 1 if select is pressed
         }
     }
+
+    if (!gamepad_dir_sel()) {
+        if (gamepad_get_state()->left) {
+            output &= ~(1 << 1); 
+        } else if (gamepad_get_state()->right) {
+            output &= ~(1 << 0); 
+        } else if (gamepad_get_state()->up) {
+            output &= ~(1 << 2); 
+        } else if (gamepad_get_state()->down) {
+            output &= ~(1 << 3); 
+        }
+    }
+
     return output;
 }
 
