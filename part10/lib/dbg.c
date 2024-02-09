@@ -9,7 +9,6 @@ void dbg_update() {
         char c = bus_read(0xFF01);
 
         dbg_msg[msg_size++] = c;
-
         bus_write(0xFF02, 0);
     }
 }
