@@ -88,7 +88,6 @@ set(CONFIG_HEADER ${CMAKE_CURRENT_BINARY_DIR}/config.h)
 # Subdirectories
 add_subdirectory(lib)
 add_subdirectory(gbemu)
-add_subdirectory(tests)
 
 ###############################################################################
 # Unit tests
