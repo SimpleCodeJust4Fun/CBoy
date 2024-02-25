@@ -1,4 +1,5 @@
 #include <cart.h>
+#include <tetris.h>
 
 typedef struct {
     char filename[1024];
@@ -127,26 +128,10 @@ const char *cart_type_name() {
     return "UNKNOWN";
 }
 
-bool cart_load(char *cart) {
-    snprintf(ctx.filename, sizeof(ctx.filename), "%s", cart);
+bool tetris_load(char *cart) {
+    ctx.rom_size = roms_Tetris_gb_len;
 
-    FILE *fp = fopen(cart, "r");
-
-    if (!fp) {
-        printf("Failed to open: %s\n", cart);
-        return false;
-    }
-
-    printf("Opened: %s\n", ctx.filename);
-
-    fseek(fp, 0, SEEK_END);
-    ctx.rom_size = ftell(fp);
-
-    rewind(fp);
-
-    ctx.rom_data = malloc(ctx.rom_size);
-    fread(ctx.rom_data, ctx.rom_size, 1, fp);
-    fclose(fp);
+    ctx.rom_data = roms_Tetris_gb;
 
     ctx.header = (rom_header *)(ctx.rom_data + 0x100);
     ctx.header->title[15] = 0;

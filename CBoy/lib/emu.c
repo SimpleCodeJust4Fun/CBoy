@@ -52,17 +52,17 @@ void *cpu_run(void *p) {
 }
 
 int emu_run(int argc, char **argv) {
-    if (argc < 2) {
-        printf("Usage: emu <rom_file>\n");
+    if (argc > 1) {
+        printf("Parameter not supported\n");
         return -1;
     }
 
-    if (!cart_load(argv[1])) {
-        printf("Failed to load ROM file: %s\n", argv[1]);
+    if (!tetris_load()) {
+        printf("Failed to load Tetris ROM\n");
         return -2;
     }
 
-    printf("Cart loaded..\n");
+    printf("Tetris loaded..\n");
 
     ui_init();
 
