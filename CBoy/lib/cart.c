@@ -128,7 +128,7 @@ const char *cart_type_name() {
     return "UNKNOWN";
 }
 
-bool tetris_load(char *cart) {
+bool tetris_load() {
     ctx.rom_size = roms_Tetris_gb_len;
 
     ctx.rom_data = roms_Tetris_gb;
