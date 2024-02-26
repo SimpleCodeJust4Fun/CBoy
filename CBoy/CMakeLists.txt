@@ -1,3 +1,4 @@
+set(CMAKE_TOOLCHAIN_FILE "/Users/liutianyu/Desktop/emsdk/upstream/emscripten/cmake/Modules/Platform/Emscripten.cmake")
 project(gbemu C)
 
 cmake_minimum_required(VERSION 2.8 FATAL_ERROR)
@@ -72,8 +73,10 @@ if(WIN32)
 else()
   list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake/sdl2)
   find_package(SDL2 REQUIRED)
-  find_package(SDL2_ttf REQUIRED)
+  # find_package(SDL2_ttf REQUIRED)
 endif()
+
+
 
 ###############################################################################
 # Generate "config.h" from "cmake/config.h.cmake"
@@ -89,8 +92,7 @@ set(CONFIG_HEADER ${CMAKE_CURRENT_BINARY_DIR}/config.h)
 add_subdirectory(lib)
 add_subdirectory(gbemu)
 
-###############################################################################
-# Unit tests
-enable_testing()
-add_test(NAME check_gbe COMMAND check_gbe)
+if(EMSCRIPTEN)
+    set(CMAKE_EXECUTABLE_SUFFIX ".html") # This line is used to set your output executable to .html
+endif()
 
