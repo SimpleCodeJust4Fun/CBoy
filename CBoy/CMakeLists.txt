@@ -1,4 +1,4 @@
-set(CMAKE_TOOLCHAIN_FILE "/Users/liutianyu/Desktop/emsdk/upstream/emscripten/cmake/Modules/Platform/Emscripten.cmake")
+# set(CMAKE_TOOLCHAIN_FILE "/Users/liutianyu/Desktop/emsdk/upstream/emscripten/cmake/Modules/Platform/Emscripten.cmake")
 project(gbemu C)
 
 cmake_minimum_required(VERSION 2.8 FATAL_ERROR)
@@ -66,4 +66,3 @@ add_subdirectory(gbemu)
 if(EMSCRIPTEN)
     set(CMAKE_EXECUTABLE_SUFFIX ".html") # This line is used to set your output executable to .html
 endif()
-
