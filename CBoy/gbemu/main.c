@@ -7,29 +7,64 @@
 #include <dma.h>
 #include <ppu.h>
 
-//TODO add windows thread
 #include <pthread.h>
 #include <unistd.h>
-// #include <emscripten.h>
-
-/* 
-  Emu components:
-
-  |Cart|
-  |CPU|
-  |Address Bus|
-  |PPU|
-  |Timer|
-
-*/
+#ifdef __EMSCRIPTEN__
+#include <emscripten.h>
+#endif
 
 static emu_context ctx;
+
+bool ui_initialized;
 
 emu_context *emu_get_context() {
     return &ctx;
 }
 
-void *cpu_run(void *p) {
+void loop() {
+    if (!ui_initialized) {
+        ui_init();
+        ui_initialized = 1;
+    }
+    printf("looping in loop func\n");
+
+    //usleep(1000);
+    ui_handle_events();
+
+    printf("ctx.prev_frame: %u\n", ctx.prev_frame);
+    printf("ppu_get_context()->current_frame: %u\n", ppu_get_context()->current_frame);
+
+    if(ctx.running) {
+        if (ctx.paused) {
+            delay(10);
+        }
+
+        if (!cpu_step()) {
+            printf("CPU Stopped\n");
+        }
+    }
+
+
+    if (ctx.prev_frame != ppu_get_context()->current_frame) {
+        // update ui only when frame changes
+        printf("detecting frame diff loop func\n");
+        ui_update();
+    }
+
+    // ui_update();
+
+    ctx.prev_frame = ppu_get_context()->current_frame;
+}
+
+int main() {
+    // Set a temporary main loop.
+    if (!tetris_load()) {
+        printf("Failed to load Tetris ROM\n");
+        return -2;
+    }
+
+    printf("Tetris loaded..\n");
+
     timer_init();
     cpu_init();
     ppu_init();
@@ -38,52 +73,16 @@ void *cpu_run(void *p) {
     ctx.paused = false;
     ctx.ticks = 0;
 
-    while(ctx.running) {
-        if (ctx.paused) {
-            delay(10);
-            continue;
+    ctx.prev_frame = 0;
+
+    
+    #ifdef EMSCRIPTEN
+        emscripten_set_main_loop(loop, 0, 1);
+    #else
+        while(!ctx.die) {
+            loop();
         }
-
-        if (!cpu_step()) {
-            printf("CPU Stopped\n");
-            return 0;
-        }
-    }
-
-    return 0;
-}
-
-int main() {
-    if (!tetris_load()) {
-        printf("Failed to load Tetris ROM\n");
-        return -2;
-    }
-
-    printf("Tetris loaded..\n");
-
-    ui_init();
-
-    pthread_t t1;
-
-    if (pthread_create(&t1, NULL, cpu_run, NULL)) {
-        fprintf(stderr, "Failed to create thread (Failed to start main CPU thread)\n");
-        return -1;
-    }
-
-    u32 prev_frame = 0;
-
-    while (!ctx.die) {
-        usleep(1000);
-        ui_handle_events();
-
-        if (prev_frame != ppu_get_context()->current_frame) {
-            // update ui only when frame changes
-            ui_update();
-        }
-        ui_update();
-
-        prev_frame = ppu_get_context()->current_frame;
-    }
+    #endif
 
     return 0;
 }
