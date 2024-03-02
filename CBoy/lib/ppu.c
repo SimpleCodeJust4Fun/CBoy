@@ -33,7 +33,7 @@ void ppu_init() {
 }
 
 void ppu_tick() {
-    printf("PPU ticking\n");
+    // printf("PPU ticking\n");
     ctx.line_ticks++;
     switch(LCDS_MODE) {
         case MODE_OAM:

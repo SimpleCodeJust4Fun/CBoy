@@ -7,53 +7,64 @@
 #include <dma.h>
 #include <ppu.h>
 
-#include <pthread.h>
 #include <unistd.h>
 #ifdef __EMSCRIPTEN__
 #include <emscripten.h>
 #endif
 
+#define FRAME_DURATION 16 // 60 FPS
+
+#define CPU_STEP_DURATION 100
+
 static emu_context ctx;
 
 bool ui_initialized;
+
+u32 last_frame_time = 0;
 
 emu_context *emu_get_context() {
     return &ctx;
 }
 
 void loop() {
+    u32 start_time = get_ticks();
     if (!ui_initialized) {
+        printf("initializing UI\n");
         ui_init();
         ui_initialized = 1;
     }
     printf("looping in loop func\n");
 
-    //usleep(1000);
     ui_handle_events();
 
-    printf("ctx.prev_frame: %u\n", ctx.prev_frame);
     printf("ppu_get_context()->current_frame: %u\n", ppu_get_context()->current_frame);
 
-    if(ctx.running) {
+    while (ctx.running && get_ticks() - start_time < CPU_STEP_DURATION) {
         if (ctx.paused) {
             delay(10);
         }
 
         if (!cpu_step()) {
             printf("CPU Stopped\n");
+            break;
         }
     }
 
+    u32 pre_ui_update_time = get_ticks();
+    printf("Time before UI update: %u ms\n", pre_ui_update_time - start_time);
 
-    if (ctx.prev_frame != ppu_get_context()->current_frame) {
-        // update ui only when frame changes
-        printf("detecting frame diff loop func\n");
-        ui_update();
+    if (start_time - last_frame_time >= FRAME_DURATION) {
+        if (ctx.prev_frame != ppu_get_context()->current_frame) {
+            // Update UI only when frame changes
+            printf("detecting frame diff loop func\n");
+            ui_update();
+        }
+
+        ctx.prev_frame = ppu_get_context()->current_frame;
+        last_frame_time = start_time;
     }
 
-    // ui_update();
-
-    ctx.prev_frame = ppu_get_context()->current_frame;
+    
 }
 
 int main() {
