@@ -1,2 +1,10 @@
 build/
 CBuild/
+
+# Ignore everything in the build directory
+/build/*
+
+# But don't ignore these specific files in the build/gbemu directory
+!/build/gbemu/*.html
+!/build/gbemu/*.js
+!/build/gbemu/*.wasm
