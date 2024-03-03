@@ -2,8 +2,8 @@ CBuild/
 
 # Ignore everything in the build directory
 /build/*
-
+/build/gbemu/CMakeFiles/*
+/build/gbemu/cmake_install.cmake
+/build/gbemu/Makefile
 # But don't ignore these specific files in the build/gbemu directory
-!/build/gbemu/*.html
-!/build/gbemu/*.js
-!/build/gbemu/*.wasm
+!/build/gbemu/
