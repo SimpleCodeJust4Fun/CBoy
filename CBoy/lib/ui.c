@@ -90,6 +90,7 @@ void display_tile(SDL_Surface *surface, u16 startLocation, u16 tileNum, int x, i
 }
 
 void update_dbg_window() {
+    printf("updating debug window\n");
     int xDraw = 0;
     int yDraw = 0;
     int tileNum = 0;
@@ -139,12 +140,13 @@ void ui_update() {
         }
     }
 
+    printf("updating game window2\n");
     SDL_UpdateTexture(sdlTexture, NULL, screen->pixels, screen->pitch);
     SDL_RenderClear(sdlRenderer);
     SDL_RenderCopy(sdlRenderer, sdlTexture, NULL, NULL);
     SDL_RenderPresent(sdlRenderer);
 
-    update_dbg_window();
+    //update_dbg_window();
 }
 
 void ui_on_key(bool down, u32 key_code) {
