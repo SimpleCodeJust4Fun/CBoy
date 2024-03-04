@@ -21,7 +21,6 @@ static int scale = 4;
 void ui_init() {
     
     SDL_Init(SDL_INIT_VIDEO);
-    printf("SDL INIT\n");
 
     SDL_CreateWindowAndRenderer(SCREEN_WIDTH, SCREEN_HEIGHT, 0, &sdlWindow, &sdlRenderer);
 
@@ -35,8 +34,11 @@ void ui_init() {
                                                 SDL_TEXTUREACCESS_STREAMING,
                                                 SCREEN_WIDTH, SCREEN_HEIGHT);
 
-    SDL_CreateWindowAndRenderer(16 * 8 * scale, 32 * 8 * scale, 0, 
-        &sdlDebugWindow, &sdlDebugRenderer);
+
+    #ifndef EMSCRIPTEN
+        SDL_CreateWindowAndRenderer(16 * 8 * scale, 32 * 8 * scale, 0, 
+            &sdlDebugWindow, &sdlDebugRenderer);
+    #endif
 
     debugScreen = SDL_CreateRGBSurface(0, (16 * 8 * scale) + (16 * scale), 
                                             (32 * 8 * scale) + (64 * scale), 32,
@@ -53,7 +55,9 @@ void ui_init() {
 
     int x, y;
     SDL_GetWindowPosition(sdlWindow, &x, &y);
-    SDL_SetWindowPosition(sdlDebugWindow, x + SCREEN_WIDTH + 10, y);
+    #ifndef EMSCRIPTEN
+        SDL_SetWindowPosition(sdlDebugWindow, x + SCREEN_WIDTH + 10, y);
+    #endif
 }
 
 void delay(u32 ms) {
@@ -90,7 +94,6 @@ void display_tile(SDL_Surface *surface, u16 startLocation, u16 tileNum, int x, i
 }
 
 void update_dbg_window() {
-    printf("updating debug window\n");
     int xDraw = 0;
     int yDraw = 0;
     int tileNum = 0;
@@ -140,13 +143,14 @@ void ui_update() {
         }
     }
 
-    printf("updating game window2\n");
     SDL_UpdateTexture(sdlTexture, NULL, screen->pixels, screen->pitch);
     SDL_RenderClear(sdlRenderer);
     SDL_RenderCopy(sdlRenderer, sdlTexture, NULL, NULL);
     SDL_RenderPresent(sdlRenderer);
 
-    //update_dbg_window();
+    #ifndef EMSCRIPTEN
+        update_dbg_window();
+    #endif
 }
 
 void ui_on_key(bool down, u32 key_code) {

@@ -161,6 +161,8 @@ u8 cart_read(u16 address) {
 }
 
 void cart_write(u16 address, u8 value) {
-    printf("cart_write(%04X)\n", address);
+    #ifdef EMSCRIPTEN
+        printf("cart_write(%04X)\n", address);
+    #endif
     // NO_IMPL
 }

@@ -6,7 +6,6 @@
 #include <timer.h>
 #include <dma.h>
 #include <ppu.h>
-
 #include <unistd.h>
 #ifdef __EMSCRIPTEN__
 #include <emscripten.h>
@@ -29,15 +28,13 @@ emu_context *emu_get_context() {
 void loop() {
     u32 start_time = get_ticks();
     if (!ui_initialized) {
-        printf("initializing UI\n");
         ui_init();
         ui_initialized = 1;
     }
-    printf("looping in loop func\n");
 
     ui_handle_events();
 
-    printf("ppu_get_context()->current_frame: %u\n", ppu_get_context()->current_frame);
+    // printf("ppu_get_context()->current_frame: %u\n", ppu_get_context()->current_frame);
 
     while (ctx.running && get_ticks() - start_time < CPU_STEP_DURATION) {
         if (ctx.paused) {
@@ -51,12 +48,11 @@ void loop() {
     }
 
     u32 pre_ui_update_time = get_ticks();
-    printf("Time before UI update: %u ms\n", pre_ui_update_time - start_time);
+    // printf("Time before UI update: %u ms\n", pre_ui_update_time - start_time);
 
     if (start_time - last_frame_time >= FRAME_DURATION) {
         if (ctx.prev_frame != ppu_get_context()->current_frame) {
             // Update UI only when frame changes
-            printf("detecting frame diff loop func\n");
             ui_update();
         }
 
@@ -68,13 +64,12 @@ void loop() {
 }
 
 int main() {
-    // Set a temporary main loop.
     if (!tetris_load()) {
         printf("Failed to load Tetris ROM\n");
         return -2;
     }
 
-    printf("Tetris loaded..\n");
+    printf("ROM loaded..\n");
 
     timer_init();
     cpu_init();
