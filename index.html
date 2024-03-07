@@ -35,7 +35,9 @@
         }
     </style>
 </head>
-<body>
+<body onload="document.querySelector('iframe').focus();">
+    <!-- Embed the gbemu.html file -->
+    <iframe src="CBoy/build/gbemu/gbemu.html"></iframe>
     <div class="instructions_en">
         <h2>control methods: </h2>
         <p>game start/pause: return/enter</p>
@@ -48,7 +50,5 @@
         <p>控制方块位置: 方向键</p>
         <p>转动方块: Z键和X键</p>
     </div>
-    <!-- Embed the gbemu.html file -->
-    <iframe src="CBoy/build/gbemu/gbemu.html"></iframe>
 </body>
 </html>
