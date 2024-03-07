@@ -1,5 +1,5 @@
 #include <cart.h>
-#include <tetris.h>
+#include <Tetris.h>
 
 typedef struct {
     char filename[1024];
@@ -128,7 +128,7 @@ const char *cart_type_name() {
     return "UNKNOWN";
 }
 
-bool tetris_load(char *cart) {
+bool tetris_load() {
     ctx.rom_size = roms_Tetris_gb_len;
 
     ctx.rom_data = roms_Tetris_gb;
@@ -161,6 +161,8 @@ u8 cart_read(u16 address) {
 }
 
 void cart_write(u16 address, u8 value) {
-    printf("cart_write(%04X)\n", address);
+    #ifndef EMSCRIPTEN
+        printf("cart_write(%04X)\n", address);
+    #endif
     // NO_IMPL
 }

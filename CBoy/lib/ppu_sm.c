@@ -163,7 +163,10 @@ void ppu_mode_hblank() {
                 u32 fps = frame_count;
                 frame_count = 0;
                 start_timer = end;
-                printf("FPS: %d\n", fps);
+                #ifndef EMSCRIPTEN
+                    printf("FPS: %d\n", fps);
+                #endif
+                
             }
 
             frame_count++;
