@@ -69,8 +69,6 @@ int main() {
         return -2;
     }
 
-    printf("ROM loaded..\n");
-
     timer_init();
     cpu_init();
     ppu_init();
@@ -83,6 +81,11 @@ int main() {
 
     
     #ifdef EMSCRIPTEN
+        int space = 80; 
+        printf("%*s操作方法：\n", space, "");
+        printf("%*s回车键（Enter/return）开始或暂停游戏\n", space + 2, "");
+        printf("%*s方向键（←↓→）控制方块位置\n", space + 2, "");
+        printf("%*sZ键和X键转动方块\n", space + 2, "");
         emscripten_set_main_loop(loop, 0, 1);
     #else
         while(!ctx.die) {
