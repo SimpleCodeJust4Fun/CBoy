@@ -11,15 +11,9 @@
 #include <emscripten.h>
 #endif
 
-#define FRAME_DURATION 16 // 60 FPS
-
-#define CPU_STEP_DURATION 200
-
 static emu_context ctx;
 
 bool ui_initialized;
-
-u32 last_frame_time = 0;
 
 emu_context *emu_get_context() {
     return &ctx;
