@@ -1,4 +1,4 @@
-set(CMAKE_TOOLCHAIN_FILE "/Users/liutianyu/Desktop/emsdk/upstream/emscripten/cmake/Modules/Platform/Emscripten.cmake")
+#set(CMAKE_TOOLCHAIN_FILE "/Users/liutianyu/Desktop/emsdk/upstream/emscripten/cmake/Modules/Platform/Emscripten.cmake")
 project(gbemu C)
 
 cmake_minimum_required(VERSION 2.8 FATAL_ERROR)
