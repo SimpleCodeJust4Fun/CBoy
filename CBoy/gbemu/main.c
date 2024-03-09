@@ -13,7 +13,7 @@
 
 #define FRAME_DURATION 16 // 60 FPS
 
-#define CPU_STEP_DURATION 100
+#define CPU_STEP_DURATION 200
 
 static emu_context ctx;
 
@@ -26,7 +26,6 @@ emu_context *emu_get_context() {
 }
 
 void loop() {
-    u32 start_time = get_ticks();
     if (!ui_initialized) {
         ui_init();
         ui_initialized = 1;
@@ -34,9 +33,8 @@ void loop() {
 
     ui_handle_events();
 
-    // printf("ppu_get_context()->current_frame: %u\n", ppu_get_context()->current_frame);
-
-    while (ctx.running && get_ticks() - start_time < CPU_STEP_DURATION) {
+    while (ctx.running && ctx.prev_frame == ppu_get_context()->current_frame) {
+        
         if (ctx.paused) {
             delay(10);
         }
@@ -47,18 +45,8 @@ void loop() {
         }
     }
 
-    u32 pre_ui_update_time = get_ticks();
-    // printf("Time before UI update: %u ms\n", pre_ui_update_time - start_time);
-
-    if (start_time - last_frame_time >= FRAME_DURATION) {
-        if (ctx.prev_frame != ppu_get_context()->current_frame) {
-            // Update UI only when frame changes
-            ui_update();
-        }
-
-        ctx.prev_frame = ppu_get_context()->current_frame;
-        last_frame_time = start_time;
-    }
+    ui_update();
+    ctx.prev_frame = ppu_get_context()->current_frame;
 }
 
 int main() {
