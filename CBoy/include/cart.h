@@ -19,7 +19,7 @@ typedef struct {
     u16 global_checksum;
 } rom_header;
 
-bool tetris_load();
+bool cart_load();
 
 u8 cart_read(u16 address);
 void cart_write(u16 address, u8 value);

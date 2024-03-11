@@ -44,7 +44,7 @@ void loop() {
 }
 
 int main() {
-    if (!tetris_load()) {
+    if (!cart_load()) {
         printf("Failed to load Tetris ROM\n");
         return -2;
     }

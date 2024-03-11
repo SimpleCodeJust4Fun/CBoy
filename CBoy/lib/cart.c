@@ -1,5 +1,6 @@
 #include <cart.h>
 #include <Tetris.h>
+#include <SuperMarioLand.h>
 
 typedef struct {
     char filename[1024];
@@ -128,10 +129,12 @@ const char *cart_type_name() {
     return "UNKNOWN";
 }
 
-bool tetris_load() {
-    ctx.rom_size = roms_Tetris_gb_len;
+bool cart_load() {
+    // ctx.rom_size = Tetris_gb_len;
+    // ctx.rom_data = Tetris_gb;
 
-    ctx.rom_data = roms_Tetris_gb;
+    ctx.rom_size = SuperMarioLand_gb_len;
+    ctx.rom_data = SuperMarioLand_gb;
 
     ctx.header = (rom_header *)(ctx.rom_data + 0x100);
     ctx.header->title[15] = 0;
