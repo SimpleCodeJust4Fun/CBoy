@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Super Mario Land</title>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0;
+            font-family: Arial, sans-serif;
+        }
+        iframe {
+            border: none;
+            width: 100%;
+            height: 100%;
+        }
+        .instructions {
+            position: absolute;
+            left: 120px;
+            top: 250px;
+            text-align: left;
+            font-size: 16px;
+        }
+        .instructions_en {
+            position: absolute;
+            right: 120px;
+            top: 250px;
+            text-align: left;
+            font-size: 16px;
+        }
+    </style>
+</head>
+<body onload="document.querySelector('iframe').focus();">
+    <!-- Embed the gbemu.html file -->
+    <iframe src="CBoy/build_sml/gbemu/gbemu.html"></iframe>
+    <div class="instructions_en" onclick="event.preventDefault(); document.querySelector('iframe').focus();">
+        <h2>control methods: </h2>
+        <p>game start/pause: return/enter</p>
+        <p>Mario movement: arrow keys</p>
+        <p>Mario action: Z, X</p>
+    </div>
+    <div class="instructions" onclick="event.preventDefault(); document.querySelector('iframe').focus();">
+        <h2>操作方法：</h2>
+        <p>游戏开始/暂停: 回车键</p>
+        <p>马里奥移动: 方向键</p>
+        <p>马里奥动作: Z键和X键</p>
+    </div>
+    <script>
+        // Add this script to handle click events on the body
+        document.body.addEventListener('click', function(event) {
+            if (event.target !== document.querySelector('iframe')) {
+                document.querySelector('iframe').focus();
+                event.preventDefault();
+            }
+        }, true);
+    </script>
+</body>
+</html>

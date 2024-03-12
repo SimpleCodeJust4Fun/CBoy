@@ -1,3 +1,3 @@
-extern unsigned char roms_Tetris_gb[];
+extern unsigned char Tetris_gb[];
 
-extern unsigned int roms_Tetris_gb_len;
+extern unsigned int Tetris_gb_len;
