@@ -19,7 +19,17 @@ typedef struct {
     u16 global_checksum;
 } rom_header;
 
-bool cart_load();
+typedef enum {
+    GAME_TETRIS,
+    GAME_SUPER_MARIO_LAND,
+    GAME_ZELDA
+} Game;
+
+bool cart_load(Game game);
 
 u8 cart_read(u16 address);
 void cart_write(u16 address, u8 value);
+
+bool cart_need_save();
+void cart_battery_save();
+void cart_battery_load();

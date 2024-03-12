@@ -1,4 +1,5 @@
 /CBuild/
+
 /build_tetris/*
 !/build_tetris/gbemu/
 /build_tetris/gbemu/CMakeFiles
@@ -10,3 +11,9 @@
 /build_sml/gbemu/CMakeFiles
 /build_sml/gbemu/MakeFile
 /build_sml/gbemu/cmake_install.cmake
+
+/build_zelda/*
+!/build_zelda/gbemu/
+/build_zelda/gbemu/CMakeFiles
+/build_zelda/gbemu/MakeFile
+/build_zelda/gbemu/cmake_install.cmake

@@ -169,7 +169,6 @@ static void proc_cb(cpu_context *ctx) {
 
 }
 
-
 static void proc_rlca(cpu_context *ctx) {
     u8 u = ctx->regs.a;
     bool c = (u >> 7) & 1; // whether c should be set
@@ -243,7 +242,6 @@ static void proc_halt(cpu_context *ctx) {
 
 static void proc_stop(cpu_context *ctx) {
     fprintf(stderr, "STOP!\n");
-    NO_IMPL
 }
 
 static void proc_and(cpu_context *ctx) {
