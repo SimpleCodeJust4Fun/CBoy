@@ -38,18 +38,6 @@
 <body onload="document.querySelector('iframe').focus();">
     <!-- Embed the gbemu.html file -->
     <iframe src="CBoy/build_zelda/gbemu/gbemu.html"></iframe>
-    <div class="instructions_en" onclick="event.preventDefault(); document.querySelector('iframe').focus();">
-        <h2>control methods: </h2>
-        <p>game start/pause: return/enter</p>
-        <p>Link's movement: arrow keys</p>
-        <p>Link's action: Z, X</p>
-    </div>
-    <div class="instructions" onclick="event.preventDefault(); document.querySelector('iframe').focus();">
-        <h2>操作方法：</h2>
-        <p>游戏开始/暂停: 回车键</p>
-        <p>林克移动: 方向键</p>
-        <p>林克动作: Z键和X键</p>
-    </div>
     <script>
         // Add this script to handle click events on the body
         document.body.addEventListener('click', function(event) {
