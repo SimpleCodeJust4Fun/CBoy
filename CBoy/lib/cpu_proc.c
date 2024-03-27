@@ -25,7 +25,7 @@ void cpu_set_flags(cpu_context *ctx, char z, char n, char h, char c) {
 
 static void proc_none(cpu_context *ctx) {
     printf("INVALID INSTRUCTION!\n");
-    exit(-7);
+    //exit(-7);
 }
 
 static void proc_nop(cpu_context *ctx) {
