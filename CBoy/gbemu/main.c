@@ -44,7 +44,7 @@ void loop() {
 }
 
 int main() {
-    if (!cart_load(GAME_TETRIS)) {
+    if (!cart_load(GAME_SF2)) {
         printf("Failed to load game ROM\n");
         return -2;
     }
