@@ -44,7 +44,7 @@ void loop() {
 }
 
 int main() {
-    if (!cart_load(GAME_SF2)) {
+    if (!cart_load(GAME_KOF96)) {
         printf("Failed to load game ROM\n");
         return -2;
     }

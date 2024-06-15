@@ -23,6 +23,8 @@ typedef enum {
     GAME_TETRIS,
     GAME_SUPER_MARIO_LAND,
     GAME_ZELDA,
+    GAME_KOF95,
+    GAME_KOF96,
     GAME_SF2,
 } Game;
 
