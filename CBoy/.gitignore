@@ -17,3 +17,15 @@
 /build_zelda/gbemu/CMakeFiles
 /build_zelda/gbemu/MakeFile
 /build_zelda/gbemu/cmake_install.cmake
+
+/build_kof95/*
+!/build_kof95/gbemu/
+/build_kof95/gbemu/CMakeFiles
+/build_kof95/gbemu/MakeFile
+/build_kof95/gbemu/cmake_install.cmake
+
+/build_kof96/*
+!/build_kof96/gbemu/
+/build_kof96/gbemu/CMakeFiles
+/build_kof96/gbemu/MakeFile
+/build_kof96/gbemu/cmake_install.cmake

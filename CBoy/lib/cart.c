@@ -3,6 +3,9 @@
 #include <Tetris.h>
 #include <SuperMarioLand.h>
 #include <Zelda.h>
+#include <SF2.h>
+#include <KOF95.h>>
+#include <KOF96.h>
 
 typedef struct {
     char filename[1024];
@@ -191,6 +194,18 @@ bool cart_load(Game game) {
         case GAME_ZELDA:
             ctx.rom_size = Zelda_gb_len;
             ctx.rom_data = Zelda_gb;
+            break;
+        case GAME_KOF95:
+            ctx.rom_size = KOF95_gb_len;
+            ctx.rom_data = KOF95_gb;
+            break;
+        case GAME_KOF96:
+            ctx.rom_size = KOF96_gb_len;
+            ctx.rom_data = KOF96_gb;
+            break;
+        case GAME_SF2:
+            ctx.rom_size = SF2_gb_len;
+            ctx.rom_data = SF2_gb;
             break;
         default:
             printf("Untestified rom");  // Unknown game

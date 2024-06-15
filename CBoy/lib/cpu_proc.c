@@ -578,7 +578,6 @@ static IN_PROC processors[] = {
     [IN_CCF] = proc_ccf,
     [IN_EI] = proc_ei,
     [IN_XOR] = proc_xor
-
 };
 
 IN_PROC inst_get_processor(in_type type) {
